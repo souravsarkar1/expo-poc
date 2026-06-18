@@ -6,11 +6,14 @@ import { trigger5BookmarksNotification } from "../services/notificationService";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { Course } from "../types/course";
 
+import { useTheme } from "@/app/theme/useTheme";
+
 interface CourseCardProps {
   course: Course;
 }
 
 const CourseCard = ({ course }: CourseCardProps) => {
+  const { palette } = useTheme();
   console.log(Number(course.id) % 2);
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(course.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
@@ -30,7 +33,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
   return (
     <TouchableOpacity
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: palette.surface,
         borderRadius: 20,
         marginBottom: 16,
         overflow: "hidden",
@@ -39,11 +42,13 @@ const CourseCard = ({ course }: CourseCardProps) => {
         shadowOpacity: 0.06,
         shadowRadius: 12,
         elevation: 3,
+        borderWidth: 1,
+        borderColor: palette.border,
       }}
       onPress={() => router.push(`/course/${course.id}`)}
       activeOpacity={0.9}
     >
-      <View style={{ width: "100%", height: 160, backgroundColor: "#f1f5f9" }}>
+      <View style={{ width: "100%", height: 160, backgroundColor: palette.surface }}>
         {/* {!imageError ? ( */}
         <Image
           source={courceImage}
@@ -129,14 +134,14 @@ const CourseCard = ({ course }: CourseCardProps) => {
       <View style={{ padding: 16 }}>
         <Text
           numberOfLines={1}
-          style={{ color: "#0f172a", fontWeight: "700", fontSize: 16 }}
+          style={{ color: palette.textPrimary, fontWeight: "700", fontSize: 16 }}
         >
           {course.title}
         </Text>
 
         <Text
           numberOfLines={2}
-          style={{ color: "#64748b", fontSize: 13, marginTop: 4, lineHeight: 18 }}
+          style={{ color: palette.textSecondary, fontSize: 13, marginTop: 4, lineHeight: 18 }}
         >
           {course.description}
         </Text>
@@ -149,30 +154,30 @@ const CourseCard = ({ course }: CourseCardProps) => {
             marginTop: 12,
             paddingTop: 12,
             borderTopWidth: 1,
-            borderTopColor: "#f1f5f9",
+            borderTopColor: palette.border,
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1, marginRight: 8 }}>
             <Image
               source={{ uri: course.instructor.avatar }}
-              style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: "#e2e8f0" }}
+              style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: palette.border }}
             />
             <Text
               numberOfLines={1}
-              style={{ color: "#334155", fontSize: 12, fontWeight: "500", marginLeft: 8, flex: 1 }}
+              style={{ color: palette.textPrimary, fontSize: 12, fontWeight: "500", marginLeft: 8, flex: 1 }}
             >
               {course.instructor.name}
             </Text>
             <Text
               numberOfLines={1}
-              style={{ color: "#334155", fontSize: 12, fontWeight: "500", marginLeft: 8, flex: 1 }}
+              style={{ color: palette.textSecondary, fontSize: 12, fontWeight: "500", marginLeft: 8, flex: 1 }}
             >
               {course.instructor.email}
             </Text>
           </View>
 
           {course.price > 0 && (
-            <Text style={{ color: "#2563eb", fontWeight: "700", fontSize: 14 }}>
+            <Text style={{ color: palette.primary, fontWeight: "700", fontSize: 14 }}>
               ${course.price}
             </Text>
           )}

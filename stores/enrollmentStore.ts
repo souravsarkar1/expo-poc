@@ -25,7 +25,6 @@ export const useEnrollmentStore = create<EnrollmentState>()(
         })),
       complete: (id) =>
         set((state) => {
-          // If a course is completed, it must also be enrolled
           const enrolled = state.enrolledCourseIds.includes(id)
             ? state.enrolledCourseIds
             : [...state.enrolledCourseIds, id];

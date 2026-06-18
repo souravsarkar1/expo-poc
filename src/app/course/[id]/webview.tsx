@@ -20,13 +20,17 @@ import { Course } from "../../../../types/course";
 type Tab = "player" | "headers";
 
 const TABS: { key: Tab; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { key: "player", label: "Course Player", icon: "play-circle-outline" },
-  { key: "headers", label: "Debug Headers", icon: "code-slash-outline" },
+  { key: "player", label: appConstant.COURSE_PLAYER, icon: "play-circle-outline" },
+  { key: "headers", label: appConstant.DEBUG_HEADERS, icon: "code-slash-outline" },
 ];
+
+import { appConstant } from "../../../../constants/appText";
+import { useTheme } from "../../theme/useTheme";
 
 export default function CourseWebView() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const { palette } = useTheme();
 
   const coursesData = queryClient.getQueryData<
     InfiniteData<{
@@ -45,21 +49,18 @@ export default function CourseWebView() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Separate refs per WebView. Sharing one ref across two different
-  // WebView instances (different `source` shapes) was the likely
-  // crash source when switching tabs.
   const playerRef = useRef<WebView>(null);
   const headersRef = useRef<WebView>(null);
 
   if (!course) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50 p-6">
-        <Ionicons name="alert-circle-outline" size={56} color="#94a3b8" />
-        <Text className="text-slate-900 font-bold text-lg mt-4">
-          Course Not Found
+      <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: palette.background }}>
+        <Ionicons name="alert-circle-outline" size={56} color={palette.textSecondary} />
+        <Text className="font-bold text-lg mt-4" style={{ color: palette.textPrimary }}>
+          {appConstant.COURSE_NOT_FOUND}
         </Text>
-        <Text className="text-slate-500 text-sm mt-2">
-          This course is no longer available
+        <Text className="text-sm mt-2" style={{ color: palette.textSecondary }}>
+          {appConstant.THIS_COURSE_IS_NO_LONGER_AVAILABLE}
         </Text>
       </View>
     );
@@ -84,13 +85,13 @@ export default function CourseWebView() {
         complete(data.courseId);
         playerRef.current?.injectJavaScript("setCompletedUI(); true;");
         Alert.alert(
-          "🎉 Congratulations!",
-          "Course marked as completed. You've achieved an amazing milestone!",
-          [{ text: "Awesome!" }]
+          `🎉 ${appConstant.CONGRATULATIONS}!`,
+          appConstant.COURSE_MARKED_AS_COMPLETED,
+          [{ text: `${appConstant.AWESOME}!` }]
         );
       }
     } catch (err) {
-      console.error("Failed to parse webview message", err);
+      console.error(appConstant.FAILED_TO_PARSE_WEBVIEW_MESSAGE, err);
     }
   };
 
@@ -105,20 +106,19 @@ export default function CourseWebView() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: palette.background }} edges={["top"]}>
 
 
-      {/* Segmented tab control */}
-      <View className="flex-row bg-slate-100 mx-4 mb-2 p-1 rounded-xl">
+      <View className="flex-row mx-4 mb-2 p-1 rounded-xl" style={{ backgroundColor: palette.surface }}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <TouchableOpacity
               key={tab.key}
               activeOpacity={0.8}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-lg ${isActive ? "bg-white shadow-sm" : ""
+              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-lg ${isActive ? "shadow-sm" : ""
                 }`}
-              style={isActive ? { elevation: 2 } : undefined}
+              style={isActive ? { elevation: 2, backgroundColor: palette.background } : undefined}
               onPress={() => {
                 setActiveTab(tab.key);
                 setLoadError(null);
@@ -128,11 +128,11 @@ export default function CourseWebView() {
               <Ionicons
                 name={tab.icon}
                 size={16}
-                color={isActive ? "#4f46e5" : "#64748b"}
+                color={isActive ? palette.primary : palette.textSecondary}
               />
               <Text
-                className={`font-semibold text-xs ${isActive ? "text-indigo-600" : "text-slate-500"
-                  }`}
+                className="font-semibold text-xs"
+                style={{ color: isActive ? palette.primary : palette.textSecondary }}
               >
                 {tab.label}
               </Text>
@@ -141,15 +141,14 @@ export default function CourseWebView() {
         })}
       </View>
 
-      {/* WebView area */}
-      <View className="flex-1 relative bg-white">
+      <View className="flex-1 relative" style={{ backgroundColor: palette.background }}>
         {loadError ? (
-          <View className="absolute inset-0 bg-white items-center justify-center p-6 z-10">
+          <View className="absolute inset-0 items-center justify-center p-6 z-10" style={{ backgroundColor: palette.background }}>
             <Ionicons name="cloud-offline-outline" size={56} color="#ef4444" />
-            <Text className="text-slate-900 font-bold text-base mt-4 text-center">
+            <Text className="font-bold text-base mt-4 text-center" style={{ color: palette.textPrimary }}>
               Failed to load content
             </Text>
-            <Text className="text-slate-500 text-sm text-center mt-2 mb-6 leading-relaxed">
+            <Text className="text-sm text-center mt-2 mb-6 leading-relaxed" style={{ color: palette.textSecondary }}>
               {loadError}
             </Text>
             <TouchableOpacity
@@ -165,9 +164,9 @@ export default function CourseWebView() {
         ) : null}
 
         {loading && !loadError ? (
-          <View className="absolute inset-0 items-center justify-center bg-white z-10">
-            <ActivityIndicator size="large" color="#4f46e5" />
-            <Text className="text-slate-400 text-sm mt-3">
+          <View className="absolute inset-0 items-center justify-center z-10" style={{ backgroundColor: palette.background }}>
+            <ActivityIndicator size="large" color={palette.primary} />
+            <Text className="text-sm mt-3" style={{ color: palette.textSecondary }}>
               {activeTab === "player" ? "Loading course content…" : "Loading headers…"}
             </Text>
           </View>
@@ -184,7 +183,7 @@ export default function CourseWebView() {
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
             onError={(e) => {
-              setLoadError(e.nativeEvent.description || "Unknown load error");
+              setLoadError(e.nativeEvent.description || appConstant.UNKNOWN_LOAD_ERROR);
               setLoading(false);
             }}
             javaScriptEnabled
@@ -199,7 +198,7 @@ export default function CourseWebView() {
             onLoadStart={() => setLoading(true)}
             onLoadEnd={() => setLoading(false)}
             onError={(e) => {
-              setLoadError(e.nativeEvent.description || "Connection error");
+              setLoadError(e.nativeEvent.description || appConstant.CONNECTION_ERROR);
               setLoading(false);
             }}
             javaScriptEnabled

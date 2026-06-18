@@ -11,9 +11,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CourseCard from "../../../components/CourseCard";
+import { appConstant } from "../../../constants/appText";
 import { fetchCourses } from "../../../services/courseApi";
 import { Course } from "../../../types/course";
+import { useTheme } from "../theme/useTheme";
+
 const CourseScreen = () => {
+  const { palette } = useTheme();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const {
@@ -58,45 +62,45 @@ const CourseScreen = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#32353aff" />
-        <Text className="text-gray-500 mt-3">Loading courses...</Text>
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: palette.background }}>
+        <ActivityIndicator size="large" color={palette.primary} />
+        <Text className="mt-3" style={{ color: palette.textSecondary }}>{appConstant.LOADING_COURSES}</Text>
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 px-6">
-        <Ionicons name="cloud-offline-outline" size={48} color="#9ca3af" />
-        <Text className="text-gray-700 font-semibold mt-3 text-center">
-          Couldn't load courses
+      <View className="flex-1 items-center justify-center px-6" style={{ backgroundColor: palette.background }}>
+        <Ionicons name="cloud-offline-outline" size={48} color={palette.textSecondary} />
+        <Text className="font-semibold mt-3 text-center" style={{ color: palette.textPrimary }}>
+          {appConstant.COULDN_T_LOAD_COURSES}
         </Text>
-        <Text className="text-gray-400 text-sm mt-1 text-center font-medium">
-          Check your connection and try again
+        <Text className="text-sm mt-1 text-center font-medium" style={{ color: palette.textSecondary }}>
+          {appConstant.COULDN_T_LOAD_COURSES_MESSAGE}
         </Text>
         <Text
           className="mt-6 px-4 py-2 bg-blue-500 rounded-xl text-white font-semibold shadow-sm active:bg-blue-600"
           onPress={() => refetch()}
         >
-          Retry Fetching
+          {appConstant.RETRY_FETCHING}
         </Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="px-6 pt-1 pb-3 bg-white border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900 mb-3">Courses</Text>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: palette.background }}>
+      <View className="px-6 pt-1 pb-3 border-b" style={{ backgroundColor: palette.background, borderBottomColor: palette.border }}>
+        <Text className="text-2xl font-bold mb-3" style={{ color: palette.textPrimary }}>{appConstant.COURSES}</Text>
 
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-3">
-          <Ionicons name="search-outline" size={18} color="#9ca3af" />
+        <View className="flex-row items-center rounded-xl px-3" style={{ backgroundColor: palette.surface }}>
+          <Ionicons name="search-outline" size={18} color={palette.textSecondary} />
           <TextInput
-            className="flex-1 py-3 px-2 text-gray-900"
-            placeholder="Search courses, instructors..."
-            placeholderTextColor="#9ca3af"
+            className="flex-1 py-3 px-2"
+            style={{ color: palette.textPrimary }}
+            placeholder={appConstant.SEARCH_COURSES}
+            placeholderTextColor={palette.textSecondary}
             value={search}
             onChangeText={setSearch}
             autoCapitalize="none"
@@ -105,14 +109,13 @@ const CourseScreen = () => {
             <Ionicons
               name="close-circle"
               size={18}
-              color="#9ca3af"
+              color={palette.textSecondary}
               onPress={() => setSearch("")}
             />
           )}
         </View>
       </View>
 
-      {/* List */}
       <LegendList
         data={filteredCourses}
         renderItem={renderItem}
@@ -123,14 +126,14 @@ const CourseScreen = () => {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={refetch}
-            colors={["#3b82f6"]}
-            tintColor="#3b82f6"
+            colors={[palette.primary]}
+            tintColor={palette.primary}
           />
         }
         ListEmptyComponent={
           <View className="items-center mt-20">
-            <Ionicons name="search-outline" size={40} color="#d1d5db" />
-            <Text className="text-gray-400 mt-2 font-medium">No courses found</Text>
+            <Ionicons name="search-outline" size={40} color={palette.textSecondary} />
+            <Text className="mt-2 font-medium" style={{ color: palette.textSecondary }}>{appConstant.NO_COURSES_FOUND}</Text>
           </View>
         }
         onEndReached={() => {
@@ -142,8 +145,8 @@ const CourseScreen = () => {
         ListFooterComponent={
           isFetchingNextPage ? (
             <View className="items-center py-6">
-              <ActivityIndicator size="small" color="#3b82f6" />
-              <Text className="text-gray-500 mt-2 font-medium">Loading more...</Text>
+              <ActivityIndicator size="small" color={palette.primary} />
+              <Text className="mt-2 font-medium" style={{ color: palette.textSecondary }}>{appConstant.LOADING_MORE}</Text>
             </View>
           ) : null
         }

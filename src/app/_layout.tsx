@@ -8,12 +8,25 @@ import { ErrorBoundary } from "../../components/ErrorBoundary";
 import "../../global.css";
 import { requestNotificationPermissions, scheduleInactivityReminder } from "../../services/notificationService";
 import { useAuthStore } from "../../stores/authStore";
+import { ThemeProvider } from "./theme/ThemeContext";
+
+import { useTheme } from "./theme/useTheme";
+import { StatusBar } from "expo-status-bar";
 
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <RootLayoutNav />
+    </ThemeProvider>
+  );
+}
+
+function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
+  const { theme, palette } = useTheme();
 
   const isLoading = useAuthStore((s) => s.isLoading);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -57,8 +70,8 @@ export default function RootLayout() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: palette.background }}>
+        <ActivityIndicator size="large" color={palette.primary} />
       </View>
     );
   }
@@ -66,7 +79,8 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <View className="flex-1">
+        <View className="flex-1" style={{ backgroundColor: palette.background }}>
+          <StatusBar style={theme === "dark" ? "light" : "dark"} />
           {isOffline && (
             <SafeAreaView className="bg-red-500 z-50">
               <View className={`items-center justify-center py-2 ${Platform.OS === 'android' ? 'pt-4' : ''}`}>
@@ -76,7 +90,18 @@ export default function RootLayout() {
               </View>
             </SafeAreaView>
           )}
-          <Stack>
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: palette.background,
+              },
+              headerTintColor: palette.textPrimary,
+              headerTitleStyle: {
+                fontWeight: "600",
+                color: palette.textPrimary,
+              },
+            }}
+          >
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="register" options={{ headerShown: false }} />
@@ -87,8 +112,6 @@ export default function RootLayout() {
                 title: "Course Details",
                 headerShown: true,
                 headerBackTitle: "Back",
-                headerTintColor: "#1f2937",
-                headerTitleStyle: { fontWeight: "600" },
               }}
             />
             <Stack.Screen
@@ -97,8 +120,6 @@ export default function RootLayout() {
                 title: "Course Content",
                 headerShown: true,
                 headerBackTitle: "Details",
-                headerTintColor: "#1f2937",
-                headerTitleStyle: { fontWeight: "600" },
               }}
             />
           </Stack>

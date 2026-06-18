@@ -1,3 +1,4 @@
+import { useTheme } from "@/app/theme/useTheme";
 import { getCourseVideo } from "@/assets/utils/getCourseVideo";
 import { Ionicons } from "@expo/vector-icons";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
@@ -12,14 +13,31 @@ import {
   View,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
+import { appConstant } from "../../../constants/appText";
 import { trigger5BookmarksNotification } from "../../../services/notificationService";
 import { useBookmarkStore } from "../../../stores/bookmarkStore";
 import { useEnrollmentStore } from "../../../stores/enrollmentStore";
 import { Course } from "../../../types/course";
 
+const COURSE_CONTENT_LIST = [
+  {
+    title: appConstant.HOURS_HIGH_QUALITY_VIDEO,
+    icon: "videocam-outline",
+  },
+  {
+    title: appConstant.ARTICLES_AND_DOWNLOADABLE_RESOURCES,
+    icon: "document-text-outline",
+  },
+  {
+    title: appConstant.CERTIFICATE_OF_COMPLETION_UPON_REQUEST,
+    icon: "ribbon-outline",
+  },
+];
+
 export default function CourseDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const { palette } = useTheme();
 
   const coursesData = queryClient.getQueryData<
     InfiniteData<{
@@ -50,19 +68,19 @@ export default function CourseDetails() {
 
   if (!course) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 p-6">
+      <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: palette.background }}>
         <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
-        <Text className="text-gray-900 font-bold text-lg mt-4 text-center">
-          Course Not Found
+        <Text className="font-bold text-lg mt-4 text-center" style={{ color: palette.textPrimary }}>
+          {appConstant.COURSE_NOT_FOUND}
         </Text>
-        <Text className="text-gray-500 text-sm text-center mt-2 mb-6">
-          The course you are looking for might have been removed or is unavailable.
+        <Text className="text-sm text-center mt-2 mb-6" style={{ color: palette.textSecondary }}>
+          {appConstant.THE_COURSE_YOU_ARE_LOOKING_FOR_MIGHT_HAVE_BEEN_REMOVED_OR_IS_UNAVAILABLE}
         </Text>
         <TouchableOpacity
           className="bg-blue-500 px-6 py-3 rounded-xl shadow-sm"
           onPress={() => router.back()}
         >
-          <Text className="text-white font-semibold">Go Back</Text>
+          <Text className="text-white font-semibold">{appConstant.GO_BACK}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -80,23 +98,21 @@ export default function CourseDetails() {
 
   const handleEnrollPress = () => {
     if (isEnrolled) {
-      // Go to WebView course content viewer
       router.push(`/course/${course.id}/webview`);
     } else {
       setEnrolling(true);
-      // Simulate API enroll network delay
       setTimeout(() => {
         enroll(course.id);
         setEnrolling(false);
         Alert.alert(
-          "Enrolled Successfully!",
-          "Congratulations! You are now enrolled in this course. Start learning today!",
+          appConstant.ENROLLED_SUCCESSFULLY,
+          appConstant.ENROLLED_SUCCESSFULLY_MESSAGE,
           [
             {
-              text: "Start Learning",
+              text: appConstant.START_LEARNING,
               onPress: () => router.push(`/course/${course.id}/webview`),
             },
-            { text: "Dismiss", style: "cancel" },
+            { text: appConstant.DISMISS, style: "cancel" },
           ]
         );
       }, 800);
@@ -104,18 +120,12 @@ export default function CourseDetails() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1" style={{ backgroundColor: palette.background }}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Cover Image */}
-        {/* <Image
-          source={{ uri: course.thumbnail }}
-          className="w-full h-64 bg-gray-100"
-          resizeMode="cover"
-        /> */}
         <YoutubePlayer
           height={250}
           play={playing}
@@ -133,31 +143,32 @@ export default function CourseDetails() {
             </Text>
           </View>
 
-          <Text className="text-2xl font-bold text-gray-900 leading-tight">
+          <Text className="text-2xl font-bold leading-tight" style={{ color: palette.textPrimary }}>
             {course.title}
           </Text>
 
-          <View className="flex-row items-center justify-between mt-4 pb-4 border-b border-gray-100">
+          <View className="flex-row items-center justify-between mt-4 pb-4 border-b" style={{ borderBottomColor: palette.border }}>
             <View className="flex-row items-center">
               <Image
                 source={{ uri: course.instructor.avatar }}
-                className="w-10 h-10 rounded-full border border-gray-200"
+                className="w-10 h-10 rounded-full border"
+                style={{ borderColor: palette.border }}
                 resizeMode="contain"
               />
               <View className="ml-3">
-                <Text className="text-gray-400 text-xs font-medium">Instructor</Text>
-                <Text className="text-gray-800 font-semibold text-sm">
+                <Text style={{ color: palette.textSecondary, fontSize: 10, fontWeight: "500" }}>{appConstant.INSTRUCTOR}</Text>
+                <Text className="font-semibold text-sm" style={{ color: palette.textPrimary }}>
                   {course.instructor.name}
                 </Text>
-                <Text className="text-gray-600 text-xs font-medium">
+                <Text style={{ color: palette.textSecondary, fontSize: 11, fontWeight: "500" }}>
                   {course.instructor.location.city + ", " + course.instructor.location.country}
                 </Text>
               </View>
             </View>
 
-            <View className="flex-row items-center bg-amber-50 px-3 py-1.5 rounded-xl">
+            <View className="flex-row items-center px-3 py-1.5 rounded-xl" style={{ backgroundColor: palette.surface }}>
               <Ionicons name="star" size={16} color="#f59e0b" />
-              <Text className="text-gray-800 font-bold text-sm ml-1.5">
+              <Text className="font-bold text-sm ml-1.5" style={{ color: palette.textPrimary }}>
                 {course.rating.toFixed(1)}
               </Text>
             </View>
@@ -165,60 +176,53 @@ export default function CourseDetails() {
 
           <View className="my-5 flex-row items-center justify-between">
             <View>
-              <Text className="text-gray-400 text-xs font-medium">Course Fee</Text>
-              <Text className="text-3xl font-extrabold text-blue-600 mt-1">
+              <Text style={{ color: palette.textSecondary, fontSize: 11, fontWeight: "500" }}>{appConstant.COURSE_FEE}</Text>
+              <Text className="text-3xl font-extrabold mt-1" style={{ color: palette.primary }}>
                 ${course.price.toFixed(2)}
               </Text>
             </View>
             <View className="bg-green-50 px-3 py-1.5 rounded-xl">
-              <Text className="text-green-600 text-xs font-bold">Lifetime Access</Text>
+              <Text className="text-green-600 text-xs font-bold">{appConstant.LIFETIME_ACCESS}</Text>
             </View>
           </View>
 
           <View className="mt-2">
-            <Text className="text-gray-900 font-bold text-base mb-2">
-              About this course
+            <Text className="font-bold text-base mb-2" style={{ color: palette.textPrimary }}>
+              {appConstant.ABOUT_THIS_COURSE}
             </Text>
-            <Text className="text-gray-600 leading-relaxed text-sm">
+            <Text className="leading-relaxed text-sm" style={{ color: palette.textSecondary }}>
               {course.description}
             </Text>
           </View>
 
-          <View className="mt-6 bg-gray-50 rounded-2xl p-4 border border-gray-100 gap-y-3">
-            <View className="flex-row items-center">
-              <Ionicons name="videocam-outline" size={20} color="#3b82f6" />
-              <Text className="text-gray-700 text-sm ml-3 font-medium">
-                12 hours high-quality on-demand video
-              </Text>
-            </View>
-            <View className="flex-row items-center">
-              <Ionicons name="document-text-outline" size={20} color="#3b82f6" />
-              <Text className="text-gray-700 text-sm ml-3 font-medium">
-                4 articles and downloadable resources
-              </Text>
-            </View>
-            <View className="flex-row items-center">
-              <Ionicons name="ribbon-outline" size={20} color="#3b82f6" />
-              <Text className="text-gray-700 text-sm ml-3 font-medium">
-                Certificate of completion upon request
-              </Text>
-            </View>
+          <View className="mt-6 rounded-2xl p-4 border gap-y-3" style={{ backgroundColor: palette.surface, borderColor: palette.border }}>
+            {/* COurse content list */}
+            {COURSE_CONTENT_LIST.map((item, index) => (
+              <View className="flex-row items-center" key={index}>
+                {/* @ts-ignore */}
+                <Ionicons name={item.icon} size={20} color={palette.primary} />
+                <Text className="text-sm ml-3 font-medium" style={{ color: palette.textPrimary }}>
+                  {item.title}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pt-3 pb-7 flex-row items-center justify-between shadow-2xl">
+      <View className="absolute bottom-0 left-0 right-0 border-t px-6 pt-3 pb-7 flex-row items-center justify-between shadow-2xl" style={{ backgroundColor: palette.background, borderTopColor: palette.border }}>
         <TouchableOpacity
-          className={`w-14 h-14 rounded-2xl items-center justify-center border ${isBookmarked
-            ? "bg-blue-50 border-blue-200"
-            : "bg-gray-50 border-gray-200"
-            }`}
+          className="w-14 h-14 rounded-2xl items-center justify-center border"
+          style={{
+            backgroundColor: isBookmarked ? palette.surface : palette.background,
+            borderColor: palette.border,
+          }}
           onPress={handleBookmarkPress}
         >
           <Ionicons
             name={isBookmarked ? "bookmark" : "bookmark-outline"}
             size={24}
-            color={isBookmarked ? "#3b82f6" : "#4b5563"}
+            color={isBookmarked ? palette.primary : palette.textSecondary}
           />
         </TouchableOpacity>
 
@@ -230,11 +234,11 @@ export default function CourseDetails() {
         >
           {enrolling ? (
             <View className="flex-row items-center">
-              <Text className="text-white font-semibold mr-2">Enrolling...</Text>
+              <Text className="text-white font-semibold mr-2">{appConstant.ENROLLING_DOTS}</Text>
             </View>
           ) : (
             <Text className="text-white font-bold text-base">
-              {isEnrolled ? "Resume Learning" : "Enroll Now"}
+              {isEnrolled ? appConstant.RESUME_LEARNING : appConstant.ENROLL_NOW}
             </Text>
           )}
         </TouchableOpacity>

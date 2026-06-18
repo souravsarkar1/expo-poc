@@ -25,10 +25,8 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 
 export async function scheduleInactivityReminder(): Promise<void> {
   try {
-    // Cancel any previously scheduled notifications to reset the 24-hour timer
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // Schedule the inactivity reminder for 24 hours from now
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'We miss you! 📚',
@@ -37,7 +35,7 @@ export async function scheduleInactivityReminder(): Promise<void> {
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 24 * 60 * 24, // 24 hours in seconds
+        seconds: 24 * 60 * 24,
         repeats: false,
       },
     });
@@ -49,7 +47,7 @@ export async function scheduleInactivityReminder(): Promise<void> {
 export async function trigger5BookmarksNotification(): Promise<void> {
   try {
     const hasShown = await AsyncStorage.getItem(HAS_SHOWN_5_BOOKMARKS_KEY);
-    if (hasShown === 'true') return; // Only notify once
+    if (hasShown === 'true') return;
 
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -57,7 +55,7 @@ export async function trigger5BookmarksNotification(): Promise<void> {
         body: 'You have bookmarked 5 or more courses! Check them out in your catalog.',
         sound: true,
       },
-      trigger: null, // Send immediately
+      trigger: null,
     });
 
     await AsyncStorage.setItem(HAS_SHOWN_5_BOOKMARKS_KEY, 'true');
@@ -66,7 +64,6 @@ export async function trigger5BookmarksNotification(): Promise<void> {
   }
 }
 
-// Reset the flag so notification can be shown again after bookmarks change
 export async function reset5BookmarksFlag(): Promise<void> {
   try {
     await AsyncStorage.removeItem(HAS_SHOWN_5_BOOKMARKS_KEY);

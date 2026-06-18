@@ -18,9 +18,7 @@ export const useBookmarkStore = create<BookmarkState>()(
           const newIds = state.bookmarkedIds.includes(id)
             ? state.bookmarkedIds.filter((b) => b !== id)
             : [...state.bookmarkedIds, id];
-          // Reset notification flag if bookmarks fall below 5
           if (newIds.length < 5) {
-            // Fire-and-forget async reset
             reset5BookmarksFlag();
           }
           return { bookmarkedIds: newIds };

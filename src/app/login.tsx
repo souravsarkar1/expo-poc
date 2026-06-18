@@ -17,7 +17,12 @@ import {
 } from "react-native";
 import { useAuthStore } from "../../stores/authStore";
 
+import { appConstant } from "../../constants/appText";
+import { storageKey } from "../../constants/storageKey";
+import { useTheme } from "./theme/useTheme";
+
 const Login = () => {
+  const { theme, palette } = useTheme();
   const login = useAuthStore((s) => s.login);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -30,8 +35,8 @@ const Login = () => {
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert(
-        "Missing fields",
-        "Please enter both email and password"
+        appConstant.MISSING_FIELDS,
+        appConstant.PLEASE_ENTER_BOTH_EMAIL_AND_PASSWORD
       );
       return;
     }
@@ -41,17 +46,16 @@ const Login = () => {
     try {
       await login(email, password);
 
-      // Save credentials for biometric login
-      await AsyncStorage.setItem("savedEmail", email);
-      await AsyncStorage.setItem("savedPassword", password);
+      await AsyncStorage.setItem(storageKey.SAVED_EMAIL, email);
+      await AsyncStorage.setItem(storageKey.SAVED_PASSWORD, password);
 
       setHasSavedCredentials(true);
 
       router.replace("/(tabs)/course");
     } catch (err: any) {
       Alert.alert(
-        "Login failed",
-        err?.message || "Something went wrong"
+        appConstant.LOGIN_FAILED,
+        err?.message || appConstant.SOMETHING_WENT_WRONG
       );
     } finally {
       setLoading(false);
@@ -61,13 +65,13 @@ const Login = () => {
 
   const handleBiometricLogin = async () => {
     try {
-      const savedEmail = await AsyncStorage.getItem("savedEmail");
-      const savedPassword = await AsyncStorage.getItem("savedPassword");
+      const savedEmail = await AsyncStorage.getItem(storageKey.SAVED_EMAIL);
+      const savedPassword = await AsyncStorage.getItem(storageKey.SAVED_PASSWORD);
 
       if (!savedEmail || !savedPassword) {
         Alert.alert(
-          "Biometric Login",
-          "Please login with email and password first."
+          appConstant.BIOMETRIC_LOGIN,
+          appConstant.BIOMETRIC_LOGIN_MESSAGE
         );
         return;
       }
@@ -80,16 +84,16 @@ const Login = () => {
 
       if (!hasHardware || !isEnrolled) {
         Alert.alert(
-          "Biometric unavailable",
-          "No biometric authentication is configured on this device."
+          appConstant.BIOMETRIC_UNAVAILABLE,
+          appConstant.BIOMETRIC_UNAVAILABLE_MESSAGE
         );
         return;
       }
 
       const result =
         await LocalAuthentication.authenticateAsync({
-          promptMessage: "Login with Biometrics",
-          cancelLabel: "Cancel",
+          promptMessage: appConstant.LOGIN_BIOMETRICS,
+          cancelLabel: appConstant.CANCEL,
           disableDeviceFallback: true,
         });
 
@@ -104,8 +108,8 @@ const Login = () => {
       router.replace("/(tabs)/course");
     } catch (err: any) {
       Alert.alert(
-        "Authentication failed",
-        err?.message || "Unable to login with biometrics."
+        appConstant.AUTHENTICATION_FAILED,
+        err?.message || appConstant.UNABLE_TO_LOGIN
       );
     } finally {
       setLoading(false);
@@ -115,8 +119,8 @@ const Login = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      const savedEmail = await AsyncStorage.getItem("savedEmail");
-      const savedPassword = await AsyncStorage.getItem("savedPassword");
+      const savedEmail = await AsyncStorage.getItem(storageKey.SAVED_EMAIL);
+      const savedPassword = await AsyncStorage.getItem(storageKey.SAVED_PASSWORD);
       const credentialsExist =
         !!savedEmail && !!savedPassword;
 
@@ -134,8 +138,8 @@ const Login = () => {
 
       const result =
         await LocalAuthentication.authenticateAsync({
-          promptMessage: "Login with Biometrics",
-          cancelLabel: "Cancel",
+          promptMessage: appConstant.LOGIN_BIOMETRICS,
+          cancelLabel: appConstant.CANCEL,
           disableDeviceFallback: true,
         });
 
@@ -168,12 +172,14 @@ const Login = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1"
+      style={{ backgroundColor: palette.background }}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
-      > <View className="flex-1 px-6 justify-center">
+      >
+        <View className="flex-1 px-6 justify-center">
           <View className="mb-10 items-center">
             <View className="w-16 h-16 bg-blue-500 items-center justify-center mb-4">
               <Image
@@ -182,16 +188,15 @@ const Login = () => {
                 resizeMode="contain"
               />
             </View>
-            <Text className="text-3xl font-bold text-gray-900">
-              Welcome back
+            <Text className="text-3xl font-bold" style={{ color: palette.textPrimary }}>
+              {appConstant.WELCOME_BACK}
             </Text>
 
-            <Text className="text-gray-500 mt-2 text-center">
-              Sign in to continue learning
+            <Text className="mt-2 text-center" style={{ color: palette.textSecondary }}>
+              {appConstant.SIGN_IN_TO_CONTINUE_LEARNING}
             </Text>
           </View>
 
-          {/* Biometric Login */}
           {hasSavedCredentials && (
             <View className="mb-6 items-center">
               <TouchableOpacity
@@ -200,23 +205,23 @@ const Login = () => {
                 className="border border-blue-500 rounded-xl px-4 py-3 bg-blue-500"
               >
                 <Text className="text-white font-medium">
-                  Login with Biometrics
+                  {appConstant.LOGIN_BIOMETRICS}
                 </Text>
               </TouchableOpacity>
             </View>
           )}
 
-          {/* Email */}
           <View className="mb-4">
-            <Text className="text-gray-700 font-medium mb-2 ml-1">
-              Email
+            <Text className="font-medium mb-2 ml-1" style={{ color: palette.textPrimary }}>
+              {appConstant.EMAIL}
             </Text>
 
-            <View className="flex-row items-center bg-gray-100 rounded-xl px-4 border border-gray-200">
+            <View className="flex-row items-center rounded-xl px-4 border" style={{ backgroundColor: palette.surface, borderColor: palette.border }}>
               <TextInput
-                className="flex-1 py-4 px-3 text-gray-900"
-                placeholder="you@example.com"
-                placeholderTextColor="#9ca3af"
+                className="flex-1 py-4 px-3"
+                style={{ color: palette.textPrimary }}
+                placeholder={appConstant.EMIL_PLACEHOLDER}
+                placeholderTextColor={palette.textSecondary}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -225,17 +230,17 @@ const Login = () => {
             </View>
           </View>
 
-          {/* Password */}
           <View className="mb-2">
-            <Text className="text-gray-700 font-medium mb-2 ml-1">
-              Password
+            <Text className="font-medium mb-2 ml-1" style={{ color: palette.textPrimary }}>
+              {appConstant.PASSWORD}
             </Text>
 
-            <View className="flex-row items-center bg-gray-100 rounded-xl px-4 border border-gray-200">
+            <View className="flex-row items-center rounded-xl px-4 border" style={{ backgroundColor: palette.surface, borderColor: palette.border }}>
               <TextInput
-                className="flex-1 py-4 px-3 text-gray-900"
+                className="flex-1 py-4 px-3"
+                style={{ color: palette.textPrimary }}
                 placeholder="••••••••"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={palette.textSecondary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -246,7 +251,7 @@ const Login = () => {
                 <Ionicons
                   name={showPassword ? "eye-off-outline" : "eye-outline"}
                   size={20}
-                  color="#9ca3af"
+                  color={palette.textSecondary}
                 />
               </TouchableOpacity>
             </View>
@@ -254,11 +259,10 @@ const Login = () => {
 
           <TouchableOpacity className="mb-6 self-end">
             <Text className="text-blue-500 font-medium">
-              Forgot password?
+              {appConstant.FORGOT_PASSWORD}
             </Text>
           </TouchableOpacity>
 
-          {/* Login Button */}
           <TouchableOpacity
             className="bg-blue-500 rounded-xl py-4 items-center mb-4"
             onPress={handleLogin}
@@ -268,31 +272,29 @@ const Login = () => {
               <ActivityIndicator color="white" />
             ) : (
               <Text className="text-white font-semibold text-base">
-                Sign In
+                {appConstant.SIGN_IN}
               </Text>
             )}
           </TouchableOpacity>
 
-          {/* Divider */}
           <View className="flex-row items-center my-4">
-            <View className="flex-1 h-px bg-gray-200" />
-            <Text className="mx-3 text-gray-400 text-sm">
+            <View className="flex-1 h-px" style={{ backgroundColor: palette.border }} />
+            <Text className="mx-3 text-sm" style={{ color: palette.textSecondary }}>
               or
             </Text>
-            <View className="flex-1 h-px bg-gray-200" />
+            <View className="flex-1 h-px" style={{ backgroundColor: palette.border }} />
           </View>
 
-          {/* Register */}
           <View className="flex-row justify-center">
-            <Text className="text-gray-500">
-              Don't have an account?
+            <Text style={{ color: palette.textSecondary }}>
+              {appConstant.DON_T_HAVE_AN_ACCOUNT}
             </Text>
 
             <TouchableOpacity
               onPress={() => router.push("/register")}
             >
               <Text className="text-blue-500 font-semibold ml-1">
-                Sign Up
+                {appConstant.SIGN_UP}
               </Text>
             </TouchableOpacity>
           </View>
