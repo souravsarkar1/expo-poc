@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
+import { storageKey } from '../constants/storageKey';
 
 interface User {
   _id: string;
@@ -24,8 +25,8 @@ interface AuthState {
   refreshTokens: () => Promise<string | null>;
 }
 
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
+const ACCESS_TOKEN_KEY = storageKey.ACCESS_TOKEN;
+const REFRESH_TOKEN_KEY = storageKey.REFRESH_TOKEN;
 const BASE_URL = 'https://api.freeapi.app/api/v1';
 
 export const useAuthStore = create<AuthState>((set, get) => ({

@@ -1,7 +1,8 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightPalette, darkPalette } from './palette';
+import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { Appearance } from 'react-native';
+import { storageKey } from '../../../constants/storageKey';
+import { darkPalette, lightPalette } from './palette';
 
 type Theme = 'light' | 'dark';
 
@@ -27,7 +28,7 @@ export const ThemeProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     const loadTheme = async () => {
       try {
-        const stored = await AsyncStorage.getItem('@app_theme');
+        const stored = await AsyncStorage.getItem(storageKey.APP_THEME);
         if (stored === 'light' || stored === 'dark') {
           setTheme(stored);
         } else {
@@ -44,7 +45,7 @@ export const ThemeProvider: React.FC<Props> = ({ children }) => {
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     try {
-      await AsyncStorage.setItem('@app_theme', newTheme);
+      await AsyncStorage.setItem(storageKey.APP_THEME, newTheme);
     } catch (e) {
       console.warn('Failed to persist theme', e);
     }
