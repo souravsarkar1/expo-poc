@@ -17,7 +17,7 @@ The application employs a modern React Native development stack chosen to maximi
 * **Secure Storage**: `expo-secure-store` for cryptographic storage of authentication tokens.
 * **Biometrics**: `expo-local-authentication` for secure FaceID/Fingerprint logins.
 * **Webview Bridge**: `react-native-webview` for sandbox course players, utilizing dynamic JavaScript injection and event messaging.
-* Local Notificatin :
+* Local Notificatin : expo-notifications use for local notification
 
 ---
 
@@ -211,7 +211,7 @@ The application uses **Zustand** coupled with local persistence (`AsyncStorage`)
   * Offers three core routines:
     1. `requestNotificationPermissions()`: Asks for permissions.
     2. `scheduleInactivityReminder()`: Schedules a time-interval reminder if the user remains inactive.
-       * *Note*: The reminder trigger interval is set using `24 * 60 * 24` seconds (which is 9.6 hours instead of 24 hours / 86400 seconds) to prompt users to return in a shorter, more engaging cycle.
+       * *Note*: The reminder trigger interval is set using `24 * 60 * 60` seconds to prompt users to return in a shorter, more engaging cycle.
     3. `trigger5BookmarksNotification()`: Displays a local congratulations notification when the user reaches 5 bookmarks, saving a tracking flag in local storage to prevent duplicate alerts.
 * **Why we use this**:
   * Local notifications increase user retention by prompting them to return, without requiring a complex backend infrastructure.
